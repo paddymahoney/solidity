@@ -1,3 +1,8 @@
+### 0.4.7 (not released yet)
+
+Features:
+ * Type checker: Allow multiple events of the same name (but with different arities or argument types)
+
 ### 0.4.6 (2016-11-22)
 
 Bugfixes:
