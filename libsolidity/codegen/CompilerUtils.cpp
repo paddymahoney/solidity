@@ -304,7 +304,29 @@ void CompilerUtils::memoryCopy(bool _useIdentityPrecompile)
 
 	if (!_useIdentityPrecompile)
 	{
-		// FIXME
+		m_context.appendInlineAssembly(R"(
+			{
+			// expects three locals: src, dst, len
+
+			// copy 32 bytes at once
+			start32:
+			jumpi(end32, lt(len, 32))
+			mstore(dst, mload(src))
+			dst := add(dst, 32)
+			src := add(src, 32)
+			len := sub(len, 32)
+			jump(start32)
+			end32:
+
+			// copy the last byte
+			let mask := exp(256, sub(31, len))
+			let srcpart := and(mload(src), not(mask))
+			let dstpart := and(mload(dst), mask)
+			mstore(dst, or(srcpart, dstpart))
+			}
+		)",
+			{ "src", "dst", "len" }
+		);
 		return;
 	}
 
