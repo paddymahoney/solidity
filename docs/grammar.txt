@@ -44,7 +44,7 @@ FunctionTypeName = 'function' TypeNameList ( 'internal' | 'external' | 'constant
 StorageLocation = 'memory' | 'storage'
 
 Block = '{' Statement* '}'
-Statement = IfStatement | WhileStatement | ForStatement | Block |
+Statement = IfStatement | WhileStatement | ForStatement | Block | InlineAssemblyStatement |
             ( DoWhileStatement | PlaceholderStatement | Continue | Break | Return |
               Throw | SimpleStatement ) ';'
 
@@ -54,12 +54,51 @@ WhileStatement = 'while' '(' Expression ')' Statement
 PlaceholderStatement = '_'
 SimpleStatement = VariableDefinition | ExpressionStatement
 ForStatement = 'for' '(' (SimpleStatement)? ';' (Expression)? ';' (ExpressionStatement)? ')' Statement
+InlineAssemblyStatement = 'assembly' InlineAssemblyBlock
 DoWhileStatement = 'do' Statement 'while' '(' Expression ')'
 Continue = 'continue'
 Break = 'break'
 Return = 'return' Expression?
 Throw = 'throw'
 VariableDefinition = VariableDeclaration ( '=' Expression )?
+
+InlineAssemblyBlock = '{' AssemblyItem* '}'
+
+AssemblyItem = SingleAssemblyInstruction | FunctionalAssemblyExpression | InlineAssemblyBlock | AssemblyLocalBinding | AssemblyAssignment | Identifier | NumbeerLiteral | StringLiteral | HexLiteral
+
+AssemblyLocalBinding = 'let' Identifier ':=' FunctionalAssemblyExpression
+
+SingleAssemblyInstruction = NoArgInstruction | OneArgInstruction | TwoArgInstruction | ThreeArgInstruction | FourArgInstruction | FiveArgInstruction | SixArgInstruction | SevenArgInstruction | StackInstruction
+
+NoArgInstruction = 'stop' | 'address' | 'origin' | 'caller' | 'callvalue' | 'calldatasize' | 'codesize' | 'coinbase' | 'timestamp' | 'number' | 'difficulty' | 'gaslimit' | 'pc' | 'msize' | 'gas'
+
+OneArgInstruction = 'iszero' | 'not' | 'balance' | 'calldatalload' | 'extcodesize' | 'blockhash' | 'pop' | 'mload' | 'sload' | 'jump' | 'suicide'
+
+TwoArgInstruction = 'add' | 'mul' | 'sub' | 'div' | 'sdiv' | 'mod' | 'smod' | 'exp' | 'signextend' | 'lt' | 'gt' | 'slt' | 'sgt' | 'eq' | 'and' | 'or' | 'xor' | 'byte' | 'sha3' | 'jumpi' | 'mstore' | 'mstore8' | 'sstore' | 'log0' | 'return'
+
+ThreeArgInstruction = 'addmod' | 'mulmod' | 'calldatacopy' | 'codecopy' | 'log1'
+
+FourArgInstruction = 'extcodecopy' | 'log2'
+
+FiveArginstruction = 'log3'
+
+SixArgInstruction = 'log4' | 'delegatecall'
+
+SevenArginstruction = 'call' | 'callcode'
+
+StackInstruction = 'dup1' | 'dup2 | 'dup3' | 'dup4' | 'dup5' | 'dup6' | 'dup7' | 'dup8' | 'dup9' | 'dup10' | 'dup11' | 'dup12' | 'dup13' | 'dup14' | 'dup15' | 'dup16' | 'swap1' | 'swap2' | 'swap3' | 'swap4' | 'swap5' | 'swap6' | 'swap7' | 'swap8' | 'swap9' | 'swap10' | 'swap11' | 'swap12' | 'sawp13' | 'swap14' | 'swap15' | 'swap16'
+
+FunctionalAssemblyExpression =
+  NoArgInstruction '()'
+| OneArgInstruction '(' FunctionalAssemblyExpression ')'
+| TwoArgInstruction '(' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ')'
+| ThreeArgInstruction '(' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ')'
+| FourArgInstruction '(' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ')'
+| FiveArgInstruction '(' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ')'
+| SixArgInstruction '(' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ')'
+| SevenArgInstruction '(' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ',' FunctionalAssemblyExpression ')'
+
+AssemblyAssignment = Identifier ':=' FunctionalAssemblyExpression | '=:' Identifier
 
 // Precedence by order (see github.com/ethereum/solidity/pull/732)
 Expression =
